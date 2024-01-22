@@ -23,7 +23,9 @@ Both English and Hindi datasets were combined into a unified dataset with folder
 An analysis of the distribution of images in each class was performed. This included plotting the count of images in each class and sorting them from highest to lowest.
 
 ### Deep Learning Model
-A convolutional neural network (CNN) model was implemented using TensorFlow for image recognition. The model was trained on the combined dataset to recognize alphabets from both English and Hindi languages.
+**CNN(Convolutional Neural Network):** A convolutional neural network (CNN) model was implemented using TensorFlow for image recognition. The model was trained on the combined dataset to recognize alphabets from both English and Hindi languages.
+
+**ResNet(Residual Network)**: Another model was trained using the ResNet Architecture. It is specifically used to overcome the vanishing gradient problem that occurs during backpropagation in CNN. 
 
 ### Model Augmentation
 Data augmentation techniques were applied to the training dataset to increase variety and improve model performance.
@@ -31,8 +33,10 @@ Data augmentation techniques were applied to the training dataset to increase va
 ### Model Evaluation and Alternative Models
 The CNN model was evaluated, and it displayed impressive performance with around 94% accuracy on the training set and around 98% accuracy on the test set(validation accuray). 
 
+*The ResNet model outperformed the CNN model* and gave an accuray of 98% on the training set and also on the test set.
+
 ### Model Deployment with FastAPI
-A simple user interface for testing the model was created using FastAPI. The interface allows users to upload images and receive predictions for recognized alphabets.
+A simple user interface for testing the model was created using FastAPI along with html and javascript code for the UI. The interface allows users to upload images and receive predictions for recognized alphabets.
 
 ## Usage
 1. Download the datasets from the provided sources.
@@ -47,11 +51,20 @@ A simple user interface for testing the model was created using FastAPI. The int
   - **`train/`**: Training images organized by class (alphabet).
   - **`test/`**: Testing images organized by class (alphabet).
 - **`models/`**: Folder containing the trained alphabet recognition models.
+ **`model_training.ipynb`**: Code for training testing and training various models for alphabet recognition and to find which model works best
 - **`static/`**: Folder for static files in the FastAPI interface.
+- **`main_api.py`**: Contains FastAPI code for creating an API for the trained model and to make predictions using the model
 
 ## Dependencies
 All the packages and libraries required for this project can be installed using the `requirements.txt` file. Just run `pip install -r reqiurements.txt` in the command line/terminal to install all the necessary dependencies.
 
+# Results
+![Output 1](images/02_Output.png)
+
+
+![Output 2](images/04_output.png)
+
+![Output 3](images/03_Output.png)
 ## Author
 Created by: Devang Chavan.
 
