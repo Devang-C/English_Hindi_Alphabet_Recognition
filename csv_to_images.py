@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from IPython.display import display
 
-# Assuming your CSV file is named 'english_dataset.csv'
+
 csv_file_path = 'english_alphabets_data/A_Z Handwritten Data.csv'
 output_folder = 'english_alphabets_data/'
 
