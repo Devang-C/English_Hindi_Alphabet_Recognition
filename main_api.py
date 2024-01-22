@@ -15,9 +15,6 @@ app = FastAPI()
 model_path = 'models/resnet_alphabet_recognition_model.h5'  # Replace with the actual path to your saved model
 model = load_model(model_path)
 
-# Load the class indices mapping
-class_indices_mapping = np.load('class_indices_mapping.npy', allow_pickle=True).item()
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
