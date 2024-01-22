@@ -55,4 +55,4 @@ All the packages and libraries required for this project can be installed using 
 ## Author
 Created by: Devang Chavan.
 
-Connect with me on [LinkedIn](#your-linkedin-profile-url).
+Connect with me on [LinkedIn](https://www.linkedin.com/in/devang-chavan/).
