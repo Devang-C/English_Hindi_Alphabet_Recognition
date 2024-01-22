@@ -12,7 +12,7 @@ from tensorflow.keras.models import load_model
 app = FastAPI()
 
 # Load the saved model
-model_path = 'models/alphabet_recognition_model.h5'  # Replace with the actual path to your saved model
+model_path = 'models/resnet_alphabet_recognition_model.h5'  # Replace with the actual path to your saved model
 model = load_model(model_path)
 
 # Load the class indices mapping
@@ -58,6 +58,7 @@ async def predict(file: UploadFile = File(...)):
 
     # Load and preprocess the input image
     input_image = cv2.imread(f"static/{file.filename}", cv2.IMREAD_GRAYSCALE)
+    input_image = cv2.adaptiveThreshold(input_image,200,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV,41,25)
     input_image = cv2.resize(input_image, (28, 28))
     input_image = input_image / 255.0
     input_image = np.expand_dims(input_image, axis=0)
