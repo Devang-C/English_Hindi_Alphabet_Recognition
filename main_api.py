@@ -12,7 +12,7 @@ from tensorflow.keras.models import load_model
 app = FastAPI()
 
 # Load the saved model
-model_path = 'models/resnet_alphabet_recognition_model.h5'  # Replace with the actual path to your saved model
+model_path = 'models/improved_alphabet_recognition_model_2.h5'  # Replace with the actual path to your saved model
 model = load_model(model_path)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -43,7 +43,65 @@ def manual_mapping(class_index):
         59: 'character_7_chha', 60: 'character_8_ja', 61: 'character_9_jha'
     }
     return manual_mapping_dict.get(class_index, 'Unknown')
+def predict_with_threshold(model, digit, threshold=0.55):
+    # Reshape and normalize for prediction
+    prediction = model.predict(digit.reshape(1, 28, 28, 1) / 255.)
 
+    # Get the predicted class index and confidence
+    predicted_class_index = np.argmax(prediction)
+    confidence = prediction[0][predicted_class_index]
+
+    # Check if confidence is above the threshold
+    if confidence >= threshold:
+        return manual_mapping(predicted_class_index)
+    else:
+        return 'Unknown'
+
+def preprocess_image(image):
+    # Apply median blur to reduce noise
+    blur_image = cv2.medianBlur(image, 7)
+
+    # Convert to grayscale
+    grey = cv2.cvtColor(blur_image, cv2.COLOR_BGR2GRAY) if len(blur_image.shape) == 3 else blur_image
+
+    # Apply adaptive thresholding
+    thresh = cv2.adaptiveThreshold(grey, 200, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 41, 25)
+
+    return thresh
+
+def extract_preprocessed_digits(contours, image):
+    preprocessed_digits = []
+
+    for c in contours:
+        # Additional preprocessing steps
+        area = cv2.contourArea(c)
+        x, y, w, h = cv2.boundingRect(c)
+        aspect_ratio = float(w) / h
+
+        # Contour area thresholding
+        if area < 90:
+            continue
+
+        # Aspect ratio filtering
+        if aspect_ratio < 0.2 or aspect_ratio > 2:
+            continue
+
+        # Bounding box size filtering
+        if w < 10 or h < 10:
+            continue
+
+        # Extract the digit
+        digit = image[y:y+h, x:x+w]
+
+        # Resize the digit to match the input size used during training
+        resized_digit = cv2.resize(digit, (28, 28))
+
+        # Pad the digit
+        padded_digit = np.pad(resized_digit, ((5, 5), (5, 5)), "constant", constant_values=0)
+
+        preprocessed_digits.append(padded_digit)
+
+    return preprocessed_digits
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
@@ -54,18 +112,30 @@ async def predict(file: UploadFile = File(...)):
         f.write(contents)
 
     # Load and preprocess the input image
-    input_image = cv2.imread(f"static/{file.filename}", cv2.IMREAD_GRAYSCALE)
-    input_image = cv2.adaptiveThreshold(input_image,200,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV,41,25)
-    input_image = cv2.resize(input_image, (28, 28))
-    input_image = input_image / 255.0
-    input_image = np.expand_dims(input_image, axis=0)
+    image_path = f"static/{file.filename}"
+    original_image = cv2.imread(image_path, cv2.IMREAD_COLOR)
 
-    # Perform prediction
-    predictions = model.predict(input_image)
+    # Preprocess the image
+    preprocessed_image = preprocess_image(original_image)
 
-    # Decode the predictions using manual mapping
-    predicted_class_index = np.argmax(predictions)
-    predicted_class = manual_mapping(predicted_class_index)
+    # Find contours
+    contours, hierarchy = cv2.findContours(preprocessed_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Sort contours based on x-coordinate
+    boundingBoxes = [cv2.boundingRect(c) for c in contours]
+    (contours, boundingBoxes) = zip(*sorted(zip(contours, boundingBoxes), key=lambda b: b[1][0], reverse=False))
+
+    # Extract preprocessed digits
+    preprocessed_digits = extract_preprocessed_digits(contours, preprocessed_image)
+
+    alphabets_unseen = []
+    for i, digit in enumerate(preprocessed_digits):
+        # Resize digit to (28, 28)
+        digit_resized = cv2.resize(digit, (28, 28))
+
+        # Perform prediction with confidence thresholding
+        pred = predict_with_threshold(model, digit_resized)
+        alphabets_unseen.append(pred)
 
     # Return the prediction result
-    return {"predicted_class": predicted_class, "image_path": f"/static/{file.filename}"}
+    return {"predicted_class": alphabets_unseen, "image_path": f"/static/{file.filename}"}
