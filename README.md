@@ -2,6 +2,8 @@
 
 This project focuses on building a computer vision model to recognize handwritten English and Hindi alphabets using deep learning. The project includes data processing scripts, analysis of the dataset, and the implementation of deep learning models for alphabet recognition for both English and Hindi languages.
 
+**You can test out the live application yourself [on this website](https://alphabet-recognition-for-english-and.onrender.com/)**
+
 ## Project Setup
 
 ### Dataset
@@ -59,12 +61,14 @@ A simple user interface for testing the model was created using FastAPI along wi
 All the packages and libraries required for this project can be installed using the `requirements.txt` file. Just run `pip install -r reqiurements.txt` in the command line/terminal to install all the necessary dependencies.
 
 # Results
-![Output 1](images/02_Output.png)
+![Output 1](output_images/01_img.png)
 
+![Output 2](output_images/02_img.png)
 
-![Output 2](images/04_output.png)
+![Output 3](output_images/03_img.png)
 
-![Output 3](images/03_Output.png)
+![Output 4](output_images/04_img.png)
+
 ## Author
 Created by: Devang Chavan.
 
